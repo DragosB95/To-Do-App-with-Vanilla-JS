@@ -21,6 +21,8 @@
         <header>
             <h1>Vanilla JS To-Do App</h1>
         </header>
+        <h2 id="counter-title">You have:</h2>
+        <p id="counter"></p>
         <form action="javascript:void(0)" method="POST" onsubmit="app.Add()"> 
             <input type="text" class="todo-input">
             <button class="todo-button" type="submit"><i class="fas fa-plus-square"></i></button>
@@ -33,7 +35,7 @@
                 <h2>Update your task</h2>
                 <input class="userInput" type="text" name="text" autocomplete="off" id="inputModal">
                 <button id="modal-update-btn"><i class="fas fa-pen"></i></button>
-                
+
                 <span class="modal-close"><i class="fas fa-times"></i></span>
             </div>
         </div>
