@@ -15,7 +15,16 @@ function closeModalBox(){
 
 var app = new function(){
   this.element = document.querySelector(".todo-list");
-  this.todosArr = [];
+
+  this.getFromLocalStorage = function() {
+    let arrLocalStorageJSON = localStorage.getItem("todos");
+    if (arrLocalStorageJSON) {
+      let arrLocalStorage = JSON.parse(arrLocalStorageJSON);
+      return arrLocalStorage;
+    }
+    return [];
+  }
+  this.todosArr = this.getFromLocalStorage();
 
 
   this.ReadAll = function(){
@@ -23,16 +32,34 @@ var app = new function(){
 
     if (this.todosArr.length > 0){
       for (let i=0; i < this.todosArr.length; i++){
-      data +=
+        if (this.todosArr[i].checked){
+          data += `
+          <div class="todo">
+            <li class="todo-item completed">
+              <p>${this.todosArr[i].name}</p>
+              <div class="button-section">
+                <button class="complete-button" onclick="app.Check(${i})"><i class="fas fa-check"></i></button>
+                <button class="trash-button" onclick="app.Delete(${i})"><i class="fas fa-trash-alt"></i></button>
+                <button class="update-button" onclick="app.Edit(${i})" id="update-button"><i class="fas fa-pen"></i></button>
+              </div>
+            </li>
+          </div>
+          `
+        }else {
+          data +=
       `
       <div class="todo">
-        <li class="todo-item">${this.todosArr[i]}
-          <button class="complete-button" onclick="app.Check(${i})"><i class="fas fa-check"></i></button>
-          <button class="trash-button" onclick="app.Delete(${i})"><i class="fas fa-trash-alt"></i></button>
-          <button class="update-button" onclick="app.Edit(${i})" id="update-button"><i class="fas fa-pen"></i></button>
+        <li class="todo-item">
+          <p>${this.todosArr[i].name}</p>
+          <div class="button-section">
+            <button class="complete-button" onclick="app.Check(${i})"><i class="fas fa-check"></i></button>
+            <button class="trash-button" onclick="app.Delete(${i})"><i class="fas fa-trash-alt"></i></button>
+            <button class="update-button" onclick="app.Edit(${i})" id="update-button"><i class="fas fa-pen"></i></button>
+          </div>
         </li>
       </div>
       `
+        }
       let newTodo = document.createElement("div");
       newTodo.innerHTML = data;
       todoList.appendChild(newTodo);
@@ -40,10 +67,9 @@ var app = new function(){
       }
       this.Count(this.todosArr.length);
       
-      console.log(this.todosArr);
       
       return this.element.innerHTML = data;
-    }else {
+    } else {
       return this.element.innerHTML = null
     }
   }
@@ -52,19 +78,23 @@ var app = new function(){
     let userInput = document.querySelector(".todo-input");
     let todo = userInput.value;
     if (todo){
-      this.todosArr.push(todo.trim());
+      this.todosArr.push({
+        name: todo,
+        checked: false
+      });
       userInput.value = ""
       this.ReadAll();
-      this.saveToLocalStorage(todo)
+      this.saveToLocalStorage(this.todosArr);
+      
     }
   }
 
   this.Edit = function(item){
     let modalInput = document.querySelector(".userInput");
-    modalInput.value = this.todosArr[item];
+    modalInput.value = this.todosArr[item].name;
     //Display the modal
     modalbg.classList.add("active");
-    self = this
+    self = this;
 
     document.getElementById("modal-update-btn").onclick = function(){
       var task = modalInput.value;
@@ -84,8 +114,11 @@ var app = new function(){
     this.deleteFromLocalStorage();
   }
 
-  this.Check = function(item){
-    console.log(this.todosArr[item])
+  this.Check = function(itemIndex){
+    let todoItemObject = this.todosArr[itemIndex];
+    todoItemObject.checked = true;
+    this.saveToLocalStorage();
+    console.log(todoItemObject);
   }
 
   this.Count = function(count){
@@ -105,17 +138,14 @@ var app = new function(){
     localStorage.setItem("todos", JSON.stringify(this.todosArr))
   }
 
-  this.getFromLocalStorage = function(){
-    let stuff = localStorage.getItem("todos");
-    console.log(stuff)
-  }
+
 
   this.deleteFromLocalStorage = function(){
     localStorage.setItem("todos", JSON.stringify(this.todosArr));
   }
 }
 
-app.ReadAll();
-app.Count()
 window.addEventListener("DOMContentLoaded", app.getFromLocalStorage);
+app.Count();
+app.ReadAll();
 
