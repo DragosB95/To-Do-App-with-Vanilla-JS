@@ -32,10 +32,10 @@ var app = new function(){
 
     if (this.todosArr.length > 0){
       for (let i=0; i < this.todosArr.length; i++){
-        if (this.todosArr[i].checked){
+        if (this.todosArr[i].checked == true){
           data += `
           <div class="todo">
-            <li class="todo-item completed">
+            <li class="todo-item completed-todo">
               <p>${this.todosArr[i].name}</p>
               <div class="button-section">
                 <button class="complete-button" onclick="app.Check(${i})"><i class="fas fa-check"></i></button>
@@ -77,11 +77,12 @@ var app = new function(){
   this.Add = function(){
     let userInput = document.querySelector(".todo-input");
     let todo = userInput.value;
+    var todoObject = {
+      name: todo,
+      checked: false
+    }
     if (todo){
-      this.todosArr.push({
-        name: todo,
-        checked: false
-      });
+      this.todosArr.push(todoObject);
       userInput.value = ""
       this.ReadAll();
       this.saveToLocalStorage(this.todosArr);
@@ -97,9 +98,12 @@ var app = new function(){
     self = this;
 
     document.getElementById("modal-update-btn").onclick = function(){
-      var task = modalInput.value;
-      if (task){
-        self.todosArr.splice(item, 1, task.trim())
+      var updatedTaskObj = {
+        name :modalInput.value,
+        checked: false};
+      if (updatedTaskObj){
+        self.todosArr.splice(item, 1, updatedTaskObj);
+        self.saveToLocalStorage()
         self.ReadAll();
         closeModalBox();
       }
@@ -115,11 +119,16 @@ var app = new function(){
   }
 
   this.Check = function(itemIndex){
-    let todoItemObject = this.todosArr[itemIndex];
-    todoItemObject.checked = true;
-    this.saveToLocalStorage();
-    console.log(todoItemObject);
+    let todoObj = this.todosArr[itemIndex];
+    if (todoObj.checked === false){
+      todoObj.checked = true
+    }else {
+      todoObj.checked = false
+    }
+    this.saveToLocalStorage()
+    this.ReadAll()
   }
+  
 
   this.Count = function(count){
     let counterParagraph = document.getElementById("counter");
